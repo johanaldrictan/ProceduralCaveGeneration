@@ -5,10 +5,95 @@ using UnityEngine;
 public class MeshGenerator : MonoBehaviour {
 
     public SquareGrid _SquareGrid;
-    
-    public void GenerateMesh(int[,] map , float squareSize)
+    List<Vector3> _vertices;
+    List<int> _triangles;
+
+    public void GenerateMesh(int[,] map, float squareSize)
     {
         _SquareGrid = new SquareGrid(map, squareSize);
+        for (int x = 0; x < _SquareGrid.Squares.GetLength(0); x++)
+        {
+            for (int y = 0; y < _SquareGrid.Squares.GetLength(1); y++)
+            {
+                TriangulateSqaure(_SquareGrid.Squares[x, y]);
+            }
+        }
+    }
+
+    void TriangulateSqaure(Square square)
+    {
+        switch (square.configuration)
+        {
+            case 0:
+                break;
+            //one point active cases
+            case 1:
+                MeshFromPoints(square.CenterBottom, square.BottomLeft, square.CenterLeft);
+                break;
+            case 2:
+                MeshFromPoints(square.CenterRight, square.BottomRight, square.CenterBottom);
+                break;
+            case 4:
+                MeshFromPoints(square.CenterTop, square.TopRight, square.CenterRight);
+                break;
+            case 8:
+                MeshFromPoints(square.TopLeft, square.CenterTop, square.CenterLeft);
+                break;
+
+            // 2 points:
+            case 3:
+                MeshFromPoints(square.CenterRight, square.BottomRight, square.BottomLeft, square.CenterLeft);
+                break;
+            case 6:
+                MeshFromPoints(square.CenterTop, square.TopRight, square.BottomRight, square.CenterBottom);
+                break;
+            case 9:
+                MeshFromPoints(square.TopLeft, square.CenterTop, square.CenterBottom, square.BottomLeft);
+                break;
+            case 12:
+                MeshFromPoints(square.TopLeft, square.TopRight, square.CenterRight, square.CenterLeft);
+                break;
+            case 5:
+                MeshFromPoints(square.CenterTop, square.TopRight, square.CenterRight, square.CenterBottom, square.BottomLeft, square.CenterLeft);
+                break;
+            case 10:
+                MeshFromPoints(square.TopLeft, square.CenterTop, square.CenterRight, square.BottomRight, square.CenterBottom, square.CenterLeft);
+                break;
+
+            // 3 point:
+            case 7:
+                MeshFromPoints(square.CenterTop, square.TopRight, square.BottomRight, square.BottomLeft, square.CenterLeft);
+                break;
+            case 11:
+                MeshFromPoints(square.TopLeft, square.CenterTop, square.CenterRight, square.BottomRight, square.BottomLeft);
+                break;
+            case 13:
+                MeshFromPoints(square.TopLeft, square.TopRight, square.CenterRight, square.CenterBottom, square.BottomLeft);
+                break;
+            case 14:
+                MeshFromPoints(square.TopLeft, square.TopRight, square.BottomRight, square.CenterBottom, square.CenterLeft);
+                break;
+
+            // 4 point:
+            case 15:
+                MeshFromPoints(square.TopLeft, square.TopRight, square.BottomRight, square.BottomLeft);
+                break;
+        }
+    }
+    void MeshFromPoints(params Node[] points)
+    {
+        AssignVertices(points);
+    }
+
+    void AssignVertices(Node[] points)
+    {
+        for(int i = 0; i < points.Length; i++)
+        {
+            if(points[i].VertexIndex == -1)
+            {
+                points[i].VertexIndex = _vertices.Count;
+            }
+        }
     }
 
     private void OnDrawGizmos()
@@ -78,6 +163,7 @@ public class MeshGenerator : MonoBehaviour {
     {
         public ControlNode TopLeft, TopRight, BottomRight, BottomLeft;
         public Node CenterTop, CenterRight, CenterBottom, CenterLeft;
+        public int configuration;
 
         public Square(ControlNode topLeft, ControlNode topRight, ControlNode bottomRight, ControlNode bottomLeft)
         {
@@ -90,6 +176,15 @@ public class MeshGenerator : MonoBehaviour {
             CenterRight = bottomRight.Above;
             CenterBottom = bottomLeft.Right;
             CenterLeft = bottomLeft.Above;
+
+            if (TopLeft.Active)
+                configuration += 8;
+            if (TopRight.Active)
+                configuration += 4;
+            if (BottomRight.Active)
+                configuration += 2;
+            if (BottomLeft.Active)
+                configuration += 1;
         }
     }
 
