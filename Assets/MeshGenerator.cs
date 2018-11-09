@@ -15,7 +15,7 @@ public class MeshGenerator : MonoBehaviour {
         {
             for (int y = 0; y < _SquareGrid.Squares.GetLength(1); y++)
             {
-                TriangulateSqaure(_SquareGrid.Squares[x, y]);
+                //TriangulateSqaure(_SquareGrid.Squares[x, y]);
             }
         }
     }
