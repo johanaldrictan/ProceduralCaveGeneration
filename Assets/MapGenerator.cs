@@ -24,16 +24,16 @@ public class MapGenerator : MonoBehaviour {
     }
     private void Update()
     {
-        //PerformGameOfLife();
+        PerformGameOfLife();
     }
     void GenerateMap()
     {
         map = new int[width, height];
         RandomFillMap();
-        for (int i = 0; i < SmoothFactor; i++)
-        {
-            SmoothMap();
-        }
+        //for (int i = 0; i < SmoothFactor; i++)
+        //{
+        //    SmoothMap();
+        //}
     }
 
     void RandomFillMap()
@@ -47,11 +47,11 @@ public class MapGenerator : MonoBehaviour {
         {
             for(int y = 0; y < height; y++)
             {
-                if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
-                {
-                    map[x, y] = 1;
-                }
-                else
+                //if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
+                //{
+                //    map[x, y] = 1;
+                //}
+                //else
                 {
                     map[x, y] = pseudoRandom.Next(0, 100) < randomFillPercent ? 1 : 0;
                 }

@@ -217,12 +217,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8be362debf48e2c4ca8bb7a5694ccb54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 60
-  height: 60
+  width: 70
+  height: 40
   seed: 
   useRandomSeed: 1
   SmoothFactor: 5
-  randomFillPercent: 44
+  randomFillPercent: 5
 --- !u!4 &665824255
 Transform:
   m_ObjectHideFlags: 0
