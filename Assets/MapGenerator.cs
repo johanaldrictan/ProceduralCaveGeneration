@@ -12,6 +12,9 @@ public class MapGenerator : MonoBehaviour {
     public bool UseRandomSeed;
     public int SmoothFactor = 5;
 
+    public int wallThresholdSize = 50;
+    public int roomThresholdSize = 50;
+
     [Range(0,100)]
     public int RandomFillPercent;
 
@@ -24,7 +27,10 @@ public class MapGenerator : MonoBehaviour {
     }
     private void Update()
     {
-        PerformGameOfLife();
+        if (Input.GetMouseButtonDown(0))
+        {
+            GenerateMap();
+        }
     }
     void GenerateMap()
     {
@@ -34,8 +40,37 @@ public class MapGenerator : MonoBehaviour {
         {
             SmoothMap();
         }
+        ProcessMap();
+
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
         meshGen.GenerateMesh(Map, 1);
+
+    }
+
+    void ProcessMap()
+    {
+        List<List<Coord>> wallRegions = GetRegions(1);
+        foreach(List<Coord> wallRegion in wallRegions)
+        {
+            if(wallRegion.Count < wallThresholdSize)
+            {
+                foreach(Coord tile in wallRegion)
+                {
+                    Map[tile.TileX, tile.TileY] = 0;
+                }
+            }
+        }
+
+        List<List<Coord>> roomRegions = GetRegions (0);
+        
+        foreach (List<Coord> roomRegion in roomRegions) {
+            if (roomRegion.Count < roomThresholdSize) {
+                foreach (Coord tile in roomRegion) {
+                    Map[tile.TileX,tile.TileY] = 1;
+                }
+            }
+        }
+
     }
 
     void RandomFillMap()
@@ -107,7 +142,7 @@ public class MapGenerator : MonoBehaviour {
         {
             for (int neighbourY = gridY - 1; neighbourY <= gridY + 1; neighbourY++)
             {
-                if (neighbourX >= 0 && neighbourX < Width && neighbourY >= 0 && neighbourY < Height)
+                if (IsInMapRange(neighbourX, neighbourY))
                 {
                     if (neighbourX != gridX || neighbourY != gridY)
                     {
@@ -123,4 +158,76 @@ public class MapGenerator : MonoBehaviour {
         return wallCount;
     }
 
+    List<List<Coord>> GetRegions(int tileType)
+    {
+        List<List<Coord>> regions = new List<List<Coord>>();
+        int[,] mapFlags = new int[Width, Height];
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if(mapFlags[x,y] == 0 && Map[x,y] == tileType)
+                {
+                    List<Coord> newRegion = GetRegionTiles(x, y);
+                    regions.Add(newRegion);
+
+                    foreach(Coord tile in newRegion)
+                    {
+                        mapFlags[tile.TileX, tile.TileY] = 1;
+                    }
+                }
+            }
+        }
+        return regions;
+    }
+
+    //Flood-Fill Algorithm
+    List<Coord> GetRegionTiles(int startX, int startY)
+    {
+        List<Coord> tiles = new List<Coord>();
+        int[,] mapFlags = new int[Width, Height];
+        int tileType = Map[startX, startY];
+
+        Queue<Coord> queue = new Queue<Coord>();
+        queue.Enqueue(new Coord(startX, startY));
+        mapFlags[startX, startY] = 1;
+
+        while(queue.Count > 0)
+        {
+            Coord tile = queue.Dequeue();
+            tiles.Add(tile);
+            for(int x = tile.TileX - 1; x <= tile.TileX + 1; x++)
+            {
+                for (int y = tile.TileY - 1; y <= tile.TileY + 1; y++)
+                {
+                    if (IsInMapRange(x, y) && (y == tile.TileY || x == tile.TileX))
+                    {
+                        if(mapFlags[x,y] == 0 && Map[x,y] == tileType)
+                        {
+                            mapFlags[x, y] = 1;
+                            queue.Enqueue(new Coord(x, y));
+                        }
+                    }
+                }
+            }
+        }
+        return tiles;
+    }
+
+    bool IsInMapRange(int x, int y)
+    {
+        return x >= 0 && x < Width && y >= 0 && y < Height;
+    }
+
+    struct Coord
+    {
+        public int TileX;
+        public int TileY;
+
+        public Coord(int x, int y)
+        {
+            TileX = x;
+            TileY = y;
+        }
+    }
 }
