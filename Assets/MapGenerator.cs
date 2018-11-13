@@ -45,7 +45,7 @@ public class MapGenerator : MonoBehaviour {
     {
         if (UseRandomSeed)
         {
-            Seed = Time.time.ToString();
+            Seed = DateTime.Now.ToString();
         }
         System.Random pseudoRandom = new System.Random(Seed.GetHashCode());
         for(int x = 0; x < Width; x++)
@@ -62,6 +62,8 @@ public class MapGenerator : MonoBehaviour {
                 }
             }
         }
+    
+        
     }
     void SmoothMap()
     {
@@ -99,19 +101,5 @@ public class MapGenerator : MonoBehaviour {
         }
         return wallCount;
     }
-    private void OnDrawGizmos()
-    {
-        //if(Map != null)
-        //{
-        //    for(int x = 0; x < Width; x++)
-        //    {
-        //        for(int y = 0; y < Height; y++)
-        //        {
-        //            Gizmos.color = (Map[x, y] == 1) ? Color.black : Color.white;
-        //            Vector3 pos = new Vector3(-Width / 2 + x + .5f, 0, -Height / 2 + y + .5f);
-        //            Gizmos.DrawCube(pos, Vector3.one);
-        //        }
-        //    }
-        //}
-    }
+
 }

@@ -10,14 +10,24 @@ public class MeshGenerator : MonoBehaviour {
 
     public void GenerateMesh(int[,] map, float squareSize)
     {
+        _vertices = new List<Vector3>();
+        _triangles = new List<int>();
+
         _SquareGrid = new SquareGrid(map, squareSize);
         for (int x = 0; x < _SquareGrid.Squares.GetLength(0); x++)
         {
             for (int y = 0; y < _SquareGrid.Squares.GetLength(1); y++)
             {
-                //TriangulateSqaure(_SquareGrid.Squares[x, y]);
+                TriangulateSqaure(_SquareGrid.Squares[x, y]);
             }
         }
+
+        Mesh mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        mesh.vertices = _vertices.ToArray();
+        mesh.triangles = _triangles.ToArray();
+        mesh.RecalculateNormals();
     }
 
     void TriangulateSqaure(Square square)
@@ -83,6 +93,15 @@ public class MeshGenerator : MonoBehaviour {
     void MeshFromPoints(params Node[] points)
     {
         AssignVertices(points);
+
+        if (points.Length >= 3)
+            CreateTriangle(points[0], points[1], points[2]);
+        if (points.Length >= 4)
+            CreateTriangle(points[0], points[2], points[3]);
+        if (points.Length >= 5)
+            CreateTriangle(points[0], points[3], points[4]);
+        if (points.Length >= 6)
+            CreateTriangle(points[0], points[4], points[5]);
     }
 
     void AssignVertices(Node[] points)
@@ -92,39 +111,47 @@ public class MeshGenerator : MonoBehaviour {
             if(points[i].VertexIndex == -1)
             {
                 points[i].VertexIndex = _vertices.Count;
+                _vertices.Add(points[i].Position);
             }
         }
     }
 
+    void CreateTriangle(Node a, Node b, Node c)
+    {
+        _triangles.Add(a.VertexIndex);
+        _triangles.Add(b.VertexIndex);
+        _triangles.Add(c.VertexIndex);
+    }
+
     private void OnDrawGizmos()
     {
-        if (_SquareGrid != null)
-        {
-            for (int x = 0; x < _SquareGrid.Squares.GetLength(0); x++)
-            {
-                for (int y = 0; y < _SquareGrid.Squares.GetLength(1); y++)
-                {
-                    Gizmos.color = (_SquareGrid.Squares[x, y].TopLeft.Active) ? Color.black : Color.white;
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].TopLeft.Position, Vector3.one * .4f);
+        //if (_SquareGrid != null)
+        //{
+        //    for (int x = 0; x < _SquareGrid.Squares.GetLength(0); x++)
+        //    {
+        //        for (int y = 0; y < _SquareGrid.Squares.GetLength(1); y++)
+        //        {
+        //            Gizmos.color = (_SquareGrid.Squares[x, y].TopLeft.Active) ? Color.black : Color.white;
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].TopLeft.Position, Vector3.one * .4f);
 
-                    Gizmos.color = (_SquareGrid.Squares[x, y].TopRight.Active) ? Color.black : Color.white;
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].TopRight.Position, Vector3.one * .4f);
+        //            Gizmos.color = (_SquareGrid.Squares[x, y].TopRight.Active) ? Color.black : Color.white;
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].TopRight.Position, Vector3.one * .4f);
 
-                    Gizmos.color = (_SquareGrid.Squares[x, y].BottomRight.Active) ? Color.black : Color.white;
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].BottomRight.Position, Vector3.one * .4f);
+        //            Gizmos.color = (_SquareGrid.Squares[x, y].BottomRight.Active) ? Color.black : Color.white;
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].BottomRight.Position, Vector3.one * .4f);
 
-                    Gizmos.color = (_SquareGrid.Squares[x, y].BottomLeft.Active) ? Color.black : Color.white;
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].BottomLeft.Position, Vector3.one * .4f);
+        //            Gizmos.color = (_SquareGrid.Squares[x, y].BottomLeft.Active) ? Color.black : Color.white;
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].BottomLeft.Position, Vector3.one * .4f);
 
 
-                    Gizmos.color = Color.grey;
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterTop.Position, Vector3.one * .15f);
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterRight.Position, Vector3.one * .15f);
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterBottom.Position, Vector3.one * .15f);
-                    Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterLeft.Position, Vector3.one * .15f);
-                }
-            }
-        }
+        //            Gizmos.color = Color.grey;
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterTop.Position, Vector3.one * .15f);
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterRight.Position, Vector3.one * .15f);
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterBottom.Position, Vector3.one * .15f);
+        //            Gizmos.DrawCube(_SquareGrid.Squares[x, y].CenterLeft.Position, Vector3.one * .15f);
+        //        }
+        //    }
+        //}
     }
 
     public class SquareGrid
