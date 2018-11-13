@@ -225,7 +225,10 @@ MonoBehaviour:
   Seed: 
   UseRandomSeed: 1
   SmoothFactor: 5
-  RandomFillPercent: 48
+  wallThresholdSize: 50
+  roomThresholdSize: 50
+  passageRadius: 3
+  RandomFillPercent: 52
 --- !u!4 &665824255
 Transform:
   m_ObjectHideFlags: 0
