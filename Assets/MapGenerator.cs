@@ -24,10 +24,7 @@ public class MapGenerator : MonoBehaviour {
     }
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            GenerateMap();
-        }
+        PerformGameOfLife();
     }
     void GenerateMap()
     {
@@ -76,6 +73,30 @@ public class MapGenerator : MonoBehaviour {
                     Map[x, y] = 1;
                 else if (neighbourWallTiles < 4)
                     Map[x, y] = 0;
+            }
+        }
+    }
+    void PerformGameOfLife()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                int neighbourCount = GetSurroundingWallCount(x, y);
+                if(Map[x,y] == 1)
+                {
+                    if (neighbourCount < 2)
+                        Map[x, y] = 0;
+                    else if (neighbourCount > 3)
+                        Map[x, y] = 0;
+                    else
+                        continue;
+                }
+                else
+                {
+                    if (neighbourCount == 3)
+                        Map[x, y] = 1;
+                }
             }
         }
     }
